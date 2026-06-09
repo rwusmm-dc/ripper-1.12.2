@@ -21,7 +21,15 @@ public class AICommandHandler {
             return false;
         }
 
-        String command = args[0].toLowerCase();
+        String raw = args[0];
+        String command = raw.toLowerCase();
+
+        // Handle key=value pattern in args[0] (e.g. "api=gemini:key:model")
+        if (command.contains("=")) {
+            String[] parts = command.split("=", 2);
+            command = parts[0];
+            args[0] = raw; // keep original for value extraction
+        }
 
         switch (command) {
             case "on":
@@ -33,15 +41,12 @@ public class AICommandHandler {
                 return true;
 
             case "api":
-                if (args.length < 2) {
+                String apiVal = raw.startsWith("api=") ? raw.substring(4) : "";
+                if (apiVal.isEmpty()) {
                     ChatUtil.syntax("Usage: .ai api=provider:key:model");
                     return true;
                 }
-                String apiArg = args[1];
-                if (apiArg.startsWith("api=")) {
-                    apiArg = apiArg.substring(4);
-                }
-                if (APIKeyManager.setAPIKey(apiArg)) {
+                if (APIKeyManager.setAPIKey(apiVal)) {
                     ChatUtil.info("AI API configured: " + APIKeyManager.getConfig());
                 } else {
                     ChatUtil.error("Failed to set API key. Format: provider:key:model");
@@ -49,37 +54,31 @@ public class AICommandHandler {
                 return true;
 
             case "model":
-                if (args.length < 2) {
+                String modelVal = raw.startsWith("model=") ? raw.substring(6) : "";
+                if (modelVal.isEmpty()) {
                     ChatUtil.syntax("Usage: .ai model=model_name");
                     return true;
                 }
-                String modelArg = args[1];
-                if (modelArg.startsWith("model=")) {
-                    modelArg = modelArg.substring(6);
-                }
-                if (APIKeyManager.setModel(modelArg)) {
-                    ChatUtil.info("AI Model changed to: " + modelArg);
+                if (APIKeyManager.setModel(modelVal)) {
+                    ChatUtil.info("AI Model changed to: " + modelVal);
                 } else {
                     ChatUtil.error("Failed to change model");
                 }
                 return true;
 
             case "personality":
-                if (args.length < 2) {
+                String persVal = raw.startsWith("personality=") ? raw.substring(12) : "";
+                if (persVal.isEmpty()) {
                     ChatUtil.syntax("Usage: .ai personality=friendly|neutral|cautious|aggressive|silent|sarcastic");
                     return true;
                 }
-                String personalityArg = args[1];
-                if (personalityArg.startsWith("personality=")) {
-                    personalityArg = personalityArg.substring(12);
-                }
                 try {
                     SystemPromptBuilder.AIPersonality personality = 
-                        SystemPromptBuilder.AIPersonality.valueOf(personalityArg.toUpperCase());
+                        SystemPromptBuilder.AIPersonality.valueOf(persVal.toUpperCase());
                     SystemPromptBuilder.setPersonality(personality);
                     ChatUtil.info("AI Personality set to: " + personality);
                 } catch (IllegalArgumentException e) {
-                    ChatUtil.error("Unknown personality: " + personalityArg);
+                    ChatUtil.error("Unknown personality: " + persVal);
                 }
                 return true;
 
