@@ -63,7 +63,7 @@ public class FindDonkeyMod extends Mod {
 
             if (entity instanceof EntityHorse) {
                 EntityHorse horse = (EntityHorse) entity;
-                int horseType = horse.getHorseType();
+                int horseType = horse.getType();
                 isMule = (horseType == 2);
                 isHorse = (horseType == 0);
             }
