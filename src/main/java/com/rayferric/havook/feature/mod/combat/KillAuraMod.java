@@ -3,6 +3,7 @@ package com.rayferric.havook.feature.mod.combat;
 import com.rayferric.havook.feature.Mod;
 import com.rayferric.havook.feature.mod.ModAttributeBoolean;
 import com.rayferric.havook.feature.mod.ModAttributeDouble;
+import com.rayferric.havook.feature.mod.ModAttributeInteger;
 import com.rayferric.havook.feature.mod.ModCategoryEnum;
 import com.rayferric.havook.manager.FriendManager;
 import com.rayferric.havook.util.EntityUtil;
