@@ -10,15 +10,11 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class BetterHUDMod extends Mod {
-    public transient ModAttributeBoolean showFPS = new ModAttributeBoolean("ShowFPS", true);
     public transient ModAttributeBoolean showCoords = new ModAttributeBoolean("ShowCoords", true);
-    public transient ModAttributeBoolean showCoordsCommand = new ModAttributeBoolean("ShowCoordsCommand", true);
 
     public BetterHUDMod() {
-        super("betterhud", "Better HUD", "Shows FPS, coordinates, and provides .coords command.", ModCategoryEnum.RENDER);
-        addAttrib(showFPS);
+        super("betterhud", "Better HUD", "Shows coordinates on screen.", ModCategoryEnum.RENDER);
         addAttrib(showCoords);
-        addAttrib(showCoordsCommand);
     }
 
     @Override
@@ -32,12 +28,6 @@ public class BetterHUDMod extends Mod {
         FontRenderer fontRenderer = mc.fontRenderer;
         int y = 2;
         int color = 0xFFFFFFFF;
-        
-        if (showFPS.value) {
-            String fps = Minecraft.debugFPS;
-            fontRenderer.drawStringWithShadow("\247bFPS: \247f" + fps, 2, y, color);
-            y += 10;
-        }
         
         if (showCoords.value) {
             BlockPos pos = mc.player.getPosition();
