@@ -8,22 +8,26 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemAppleGold;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 
 public class AutoEatMod extends Mod {
     private static final int HUNGER_THRESHOLD = 10;
+    private static final int EAT_DURATION = 32;
 
     private transient int previousHotbarSlot = -1;
     private transient int swappedInventorySlot = -1;
     private transient int activeFoodSlot = -1;
+    private transient int eatingTicks = 0;
+    private transient boolean wasEating = false;
 
     public AutoEatMod() {
-        super("autoeat", "Auto Eat", "Automatically eats food when your hunger drops to half or lower.",
-                ModCategoryEnum.MISC);
+        super("autoeat", "Auto Eat", "Automatically eats food when your hunger drops to half or lower.", ModCategoryEnum.MISC);
     }
 
     @Override
     public void onDisable() {
         restoreHotbarSlot();
+        resetEatingState();
     }
 
     @Override
@@ -32,16 +36,41 @@ public class AutoEatMod extends Mod {
         if (player == null || Minecraft.getMinecraft().world == null)
             return;
 
-        if (player.getFoodStats().getFoodLevel() > HUNGER_THRESHOLD) {
+        boolean isEating = player.isHandActive() && player.getActiveHand() == EnumHand.MAIN_HAND;
+        ItemStack heldItem = player.getHeldItemMainhand();
+
+        if (player.getFoodStats().getFoodLevel() >= 20) {
+            if (isEating) {
+                stopEating(player);
+            }
             restoreHotbarSlot();
+            resetEatingState();
             return;
         }
 
-        if (swappedInventorySlot != -1 && !player.isHandActive())
+        if (player.getFoodStats().getFoodLevel() > HUNGER_THRESHOLD && !isEating) {
             restoreHotbarSlot();
-
-        if (player.isHandActive())
+            resetEatingState();
             return;
+        }
+
+        if (wasEating && !isEating) {
+            eatingTicks = 0;
+        }
+        wasEating = isEating;
+
+        if (isEating) {
+            eatingTicks++;
+            if (eatingTicks >= EAT_DURATION || player.getFoodStats().getFoodLevel() >= 20) {
+                stopEating(player);
+                resetEatingState();
+            }
+            return;
+        }
+
+        if (swappedInventorySlot != -1 && !isEating) {
+            restoreHotbarSlot();
+        }
 
         ItemStack foodStack = findFoodStack(player);
         if (foodStack.isEmpty())
@@ -53,10 +82,25 @@ public class AutoEatMod extends Mod {
             previousHotbarSlot = hotbarSlot;
             Minecraft.getMinecraft().playerController.windowClick(player.inventoryContainer.windowId,
                     swappedInventorySlot, hotbarSlot, ClickType.SWAP, player);
+            return;
         }
 
-        Minecraft.getMinecraft().playerController.processRightClick(player, Minecraft.getMinecraft().world,
-            net.minecraft.util.EnumHand.MAIN_HAND);
+        if (activeFoodSlot != player.inventory.currentItem) {
+            player.inventory.currentItem = activeFoodSlot;
+            return;
+        }
+
+        Minecraft.getMinecraft().playerController.processRightClick(player, Minecraft.getMinecraft().world, EnumHand.MAIN_HAND);
+        eatingTicks = 0;
+    }
+
+    private void stopEating(EntityPlayerSP player) {
+        Minecraft.getMinecraft().playerController.onStoppedUsingItem(player);
+    }
+
+    private void resetEatingState() {
+        eatingTicks = 0;
+        wasEating = false;
     }
 
     private ItemStack findFoodStack(EntityPlayerSP player) {

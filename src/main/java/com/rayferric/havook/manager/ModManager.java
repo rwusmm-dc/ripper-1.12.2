@@ -19,6 +19,7 @@ import com.rayferric.havook.feature.mod.ModAttributeInteger;
 import com.rayferric.havook.feature.mod.ModAttributeString;
 import com.rayferric.havook.feature.mod.misc.AutoEatMod;
 import com.rayferric.havook.feature.mod.misc.AutoFishMod;
+import com.rayferric.havook.feature.mod.misc.AutoSendMessageMod;
 import com.rayferric.havook.feature.mod.misc.FastPlaceMod;
 import com.rayferric.havook.feature.mod.misc.PacketLimiterMod;
 import com.rayferric.havook.feature.mod.misc.FastMathMod;
@@ -37,6 +38,7 @@ import com.rayferric.havook.feature.mod.movement.ParkourMod;
 import com.rayferric.havook.feature.mod.movement.SafeWalkMod;
 import com.rayferric.havook.feature.mod.render.ActiveListMod;
 import com.rayferric.havook.feature.mod.render.ChestESPMod;
+import com.rayferric.havook.feature.mod.render.FindDonkeyMod;
 import com.rayferric.havook.feature.mod.render.FullBrightMod;
 import com.rayferric.havook.feature.mod.render.HealthTags;
 import com.rayferric.havook.feature.mod.render.ItemESPMod;
@@ -60,6 +62,7 @@ public class ModManager {
 	public static void loadMods() {
 		MODS.add(new AutoTotemMod());
 		MODS.add(new AutoEatMod());
+		MODS.add(new AutoSendMessageMod());
 		MODS.add(new ActiveListMod());
 		MODS.add(new AutoFishMod());
 		MODS.add(new AutoSneakMod());
@@ -67,6 +70,7 @@ public class ModManager {
 		MODS.add(new AutoWalkMod());
 		MODS.add(new AntiAfkKickMod());
 		MODS.add(new ChestESPMod());
+		MODS.add(new FindDonkeyMod());
 		MODS.add(new ElytraBoostMod());
 		MODS.add(new FastPlaceMod());
 		MODS.add(new FlyMod());
