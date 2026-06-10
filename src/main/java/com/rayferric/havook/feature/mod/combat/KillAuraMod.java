@@ -29,12 +29,15 @@ public class KillAuraMod extends Mod {
     public transient ModAttributeBoolean attackMobs = new ModAttributeBoolean("AttackMobs", true);
     public transient ModAttributeBoolean attackAnimals = new ModAttributeBoolean("AttackAnimals", true);
     public transient ModAttributeBoolean attackInvisibleEntities = new ModAttributeBoolean("AttackInvisibleEntities", true);
-    public transient ModAttributeBoolean checkLineOfSight = new ModAttributeBoolean("CheckLineOfSight", false);
+    public transient ModAttributeBoolean checkLineOfSight = new ModAttributeBoolean("CheckLineOfSight", true);
     public transient ModAttributeBoolean attackMultipleTargets = new ModAttributeBoolean("AttackMultipleTargets", false);
     public transient ModAttributeBoolean useAxeToBreakShield = new ModAttributeBoolean("UseAxeToBreakShield", true);
     public transient ModAttributeBoolean attackWhileMainhandInUse = new ModAttributeBoolean("AttackWhileMainhandInUse", false);
+    public transient ModAttributeInteger maxCPS = new ModAttributeInteger("MaxCPS", 12);
+    public transient ModAttributeBoolean autoCriticalHit = new ModAttributeBoolean("AutoCriticalHit", true);
 
     private transient long time;
+    private transient long lastAttackTime;
 
     public KillAuraMod() {
         super("killaura", "Kill Aura", "Automatically attacks nearby entities.", ModCategoryEnum.COMBAT);
@@ -49,19 +52,29 @@ public class KillAuraMod extends Mod {
         addAttrib(attackMultipleTargets);
         addAttrib(useAxeToBreakShield);
         addAttrib(attackWhileMainhandInUse);
+        addAttrib(maxCPS);
+        addAttrib(autoCriticalHit);
     }
 
     @Override
     public void onEnable() {
         time = System.currentTimeMillis();
+        lastAttackTime = 0;
     }
 
     @Override
     public void onLocalPlayerUpdate() {
         if (Minecraft.getMinecraft().player == null || Minecraft.getMinecraft().world == null)
             return;
+        
+        long currentTime = System.currentTimeMillis();
+        long minAttackInterval = maxCPS.value > 0 ? (1000L / maxCPS.value) : 0;
+        
         if (useCooldown.value ? Minecraft.getMinecraft().player.getCooledAttackStrength(0) < 1
-                : (speed.value == 0 || System.currentTimeMillis() - time < 1000.0d / speed.value))
+                : (speed.value == 0 || currentTime - time < 1000.0d / speed.value))
+            return;
+        
+        if (minAttackInterval > 0 && currentTime - lastAttackTime < minAttackInterval)
             return;
 
         boolean attacked = false;
@@ -74,8 +87,10 @@ public class KillAuraMod extends Mod {
             attacked = target != null && attackTarget(target);
         }
 
-        if (attacked)
-            time = System.currentTimeMillis();
+        if (attacked) {
+            time = currentTime;
+            lastAttackTime = currentTime;
+        }
     }
 
     private boolean attackTarget(Entity target) {
@@ -109,6 +124,13 @@ public class KillAuraMod extends Mod {
         if (isPlayerShielded(Minecraft.getMinecraft().player)
                 || (!attackWhileMainhandInUse.value && isPlayerUsingMainhand(Minecraft.getMinecraft().player)))
             return false;
+
+        if (autoCriticalHit.value) {
+            if (Minecraft.getMinecraft().player.onGround && !Minecraft.getMinecraft().player.isSneaking() 
+                    && !Minecraft.getMinecraft().player.isInWater() && !Minecraft.getMinecraft().player.isInLava()) {
+                Minecraft.getMinecraft().player.jump();
+            }
+        }
 
         Minecraft.getMinecraft().playerController.attackEntity(Minecraft.getMinecraft().player, target);
         Minecraft.getMinecraft().player.swingArm(EnumHand.MAIN_HAND);

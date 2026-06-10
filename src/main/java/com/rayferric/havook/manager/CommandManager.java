@@ -24,6 +24,7 @@ import com.rayferric.havook.feature.command.RenameCommand;
 import com.rayferric.havook.feature.command.RepairCommand;
 import com.rayferric.havook.feature.command.SayCommand;
 import com.rayferric.havook.feature.command.TpCommand;
+import com.rayferric.havook.feature.command.CoordsCommand;
 
 public class CommandManager {
 	public static List<Command> COMMANDS = new ArrayList<Command>();
@@ -49,5 +50,6 @@ public class CommandManager {
 		COMMANDS.add(new RepairCommand());
 		COMMANDS.add(new SayCommand());
 		COMMANDS.add(new TpCommand());
+		COMMANDS.add(new CoordsCommand());
 	}
 }

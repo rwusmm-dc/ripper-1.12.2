@@ -15,13 +15,19 @@ import com.rayferric.havook.feature.Mod;
 import com.rayferric.havook.feature.mod.ModAttribute;
 import com.rayferric.havook.feature.mod.ModAttributeBoolean;
 import com.rayferric.havook.feature.mod.ModAttributeDouble;
+import com.rayferric.havook.feature.mod.ModAttributeInteger;
 import com.rayferric.havook.feature.mod.ModAttributeString;
 import com.rayferric.havook.feature.mod.misc.AutoEatMod;
+import com.rayferric.havook.feature.mod.misc.AutoFishMod;
+import com.rayferric.havook.feature.mod.misc.FastPlaceMod;
+import com.rayferric.havook.feature.mod.misc.PacketLimiterMod;
+import com.rayferric.havook.feature.mod.misc.FastMathMod;
+import com.rayferric.havook.feature.mod.misc.DerpMod;
 import com.rayferric.havook.feature.mod.combat.AutoTotemMod;
 import com.rayferric.havook.feature.mod.combat.KillAuraMod;
 import com.rayferric.havook.feature.mod.combat.TriggerBotMod;
-import com.rayferric.havook.feature.mod.misc.AutoFishMod;
-import com.rayferric.havook.feature.mod.misc.FastPlaceMod;
+import com.rayferric.havook.feature.mod.combat.AutoCriticalHitMod;
+import com.rayferric.havook.feature.mod.combat.FurtherReachMod;
 import com.rayferric.havook.feature.mod.movement.AutoSneakMod;
 import com.rayferric.havook.feature.mod.movement.AutoSprintMod;
 import com.rayferric.havook.feature.mod.movement.AutoWalkMod;
@@ -39,6 +45,10 @@ import com.rayferric.havook.feature.mod.render.MobESPMod;
 import com.rayferric.havook.feature.mod.render.HitmanRadarMod;
 import com.rayferric.havook.feature.mod.render.PlayerESPMod;
 import com.rayferric.havook.feature.mod.render.TrajectoriesMod;
+import com.rayferric.havook.feature.mod.render.BetterNametagMod;
+import com.rayferric.havook.feature.mod.render.CustomHandMod;
+import com.rayferric.havook.feature.mod.render.NoHurtCamMod;
+import com.rayferric.havook.feature.mod.render.BetterHUDMod;
 import com.rayferric.havook.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -73,6 +83,15 @@ public class ModManager {
 		MODS.add(new SafeWalkMod());
 		MODS.add(new TrajectoriesMod());
 		MODS.add(new TriggerBotMod());
+		MODS.add(new AutoCriticalHitMod());
+		MODS.add(new FurtherReachMod());
+		MODS.add(new BetterNametagMod());
+		MODS.add(new CustomHandMod());
+		MODS.add(new NoHurtCamMod());
+		MODS.add(new BetterHUDMod());
+		MODS.add(new PacketLimiterMod());
+		MODS.add(new FastMathMod());
+		MODS.add(new DerpMod());
 		JsonArray modsArray = ConfigManager.getJsonObject().getAsJsonArray("mods");
 		if(modsArray == null) {
 			saveMods();
@@ -106,9 +125,17 @@ public class ModManager {
 						continue;
 					}
 					((ModAttributeDouble) targetAttribute).value = number;
-				} else if (targetAttribute instanceof ModAttributeString) {
-					((ModAttributeString) targetAttribute).value = stringValue;
+			} else if (targetAttribute instanceof ModAttributeString) {
+				((ModAttributeString) targetAttribute).value = stringValue;
+			} else if (targetAttribute instanceof ModAttributeInteger) {
+				int number;
+				try {
+					number = Integer.parseInt(stringValue);
+				} catch (NullPointerException | NumberFormatException e) {
+					continue;
 				}
+				((ModAttributeInteger) targetAttribute).value = number;
+			}
 			}
 		}
 		saveMods(); // fix any errors in the config file
