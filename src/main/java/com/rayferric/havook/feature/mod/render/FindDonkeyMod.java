@@ -58,8 +58,15 @@ public class FindDonkeyMod extends Mod {
                 continue;
 
             boolean isDonkey = entity instanceof EntityDonkey;
-            boolean isMule = entity instanceof EntityHorse && ((EntityHorse) entity).isMule();
-            boolean isHorse = entity instanceof EntityHorse && !((EntityHorse) entity).isMule() && !isDonkey;
+            boolean isMule = false;
+            boolean isHorse = false;
+
+            if (entity instanceof EntityHorse) {
+                EntityHorse horse = (EntityHorse) entity;
+                int horseType = horse.getHorseType();
+                isMule = (horseType == 2);
+                isHorse = (horseType == 0);
+            }
 
             if (!isDonkey && !isMule && !isHorse)
                 continue;
