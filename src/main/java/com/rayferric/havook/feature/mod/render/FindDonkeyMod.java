@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityDonkey;
 import net.minecraft.entity.passive.EntityHorse;
+import net.minecraft.entity.passive.EntityMule;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class FindDonkeyMod extends Mod {
@@ -58,15 +59,8 @@ public class FindDonkeyMod extends Mod {
                 continue;
 
             boolean isDonkey = entity instanceof EntityDonkey;
-            boolean isMule = false;
-            boolean isHorse = false;
-
-            if (entity instanceof EntityHorse) {
-                EntityHorse horse = (EntityHorse) entity;
-                int horseType = horse.getType();
-                isMule = (horseType == 2);
-                isHorse = (horseType == 0);
-            }
+            boolean isMule = entity instanceof EntityMule;
+            boolean isHorse = entity instanceof EntityHorse && !(entity instanceof EntityDonkey) && !(entity instanceof EntityMule);
 
             if (!isDonkey && !isMule && !isHorse)
                 continue;
