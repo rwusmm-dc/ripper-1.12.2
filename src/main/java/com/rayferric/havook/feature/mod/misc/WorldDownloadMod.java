@@ -6,6 +6,7 @@ import com.rayferric.havook.feature.mod.ModAttributeInteger;
 import com.rayferric.havook.feature.mod.ModCategoryEnum;
 import com.rayferric.havook.util.ChatUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
@@ -15,7 +16,6 @@ import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -129,9 +129,8 @@ public class WorldDownloadMod extends Mod {
             
             File levelDatFile = new File(worldDir, "level.dat");
             try (FileOutputStream fos = new FileOutputStream(levelDatFile);
-                 GZIPOutputStream gzos = new GZIPOutputStream(fos);
-                 DataOutputStream dos = new DataOutputStream(gzos)) {
-                levelDat.write(dos);
+                 GZIPOutputStream gzos = new GZIPOutputStream(fos)) {
+                CompressedStreamTools.write(levelDat, gzos);
             }
         } catch (IOException e) {
             ChatUtil.error("Failed to create level.dat: " + e.getMessage());
@@ -206,9 +205,8 @@ public class WorldDownloadMod extends Mod {
         File chunkFile = new File(regionDir, "chunk_" + pos.x + "_" + pos.z + ".nbt");
         
         try (FileOutputStream fos = new FileOutputStream(chunkFile);
-             GZIPOutputStream gzos = new GZIPOutputStream(fos);
-             DataOutputStream dos = new DataOutputStream(gzos)) {
-            data.write(dos);
+             GZIPOutputStream gzos = new GZIPOutputStream(fos)) {
+            CompressedStreamTools.write(data, gzos);
         }
     }
 
