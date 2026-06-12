@@ -51,6 +51,8 @@ public class CustomHandMod extends Mod {
     public void onRenderHand(RenderHandEvent event) {
         if (!isEnabled() || Minecraft.getMinecraft().player == null) return;
         
+        event.setCanceled(true);
+        
         GlStateManager.pushMatrix();
         
         // Position

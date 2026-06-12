@@ -7,6 +7,7 @@ import org.lwjgl.input.Keyboard;
 import com.rayferric.havook.Havook;
 import com.rayferric.havook.feature.mod.ModAttributeBoolean;
 import com.rayferric.havook.feature.mod.ModAttributeDouble;
+import com.rayferric.havook.feature.mod.ModAttributeInteger;
 import com.rayferric.havook.feature.mod.ModAttributeString;
 import com.rayferric.havook.gui.list.ModAttributeList;
 import com.rayferric.havook.gui.list.ModList;
@@ -27,6 +28,10 @@ public class ModsGui extends GuiScreen {
 	private GuiButton doubleIncrementButton;
 	private GuiButton stringSetButton;
 	private GuiTextField stringSetField;
+	private GuiButton integerDecrementButton;
+	private GuiButton integerIncrementButton;
+	private GuiButton integerSetButton;
+	private GuiTextField integerSetField;
 
 	@Override
 	public void initGui() {
@@ -52,9 +57,20 @@ public class ModsGui extends GuiScreen {
 				(int) (height * 0.75) - 10 - 30 + 30, 200, 20);
 		stringSetField.setMaxStringLength(16);
 		stringSetField.setText("");
+
+		integerDecrementButton = new GuiButton(6, (int) (width * 0.75) - 10 - 40, (int) (height * 0.75 - 10 + 30), 20,
+				20, "-");
+		integerIncrementButton = new GuiButton(7, (int) (width * 0.75) - 10 + 40, (int) (height * 0.75 - 10 + 30), 20,
+				20, "+");
+		integerSetButton = new GuiButton(8, (int) (width * 0.75) - 75, (int) (height * 0.75) - 10 + 30, 150, 20, "Set");
+
+		integerSetField = new GuiTextField(0, fontRenderer, (int) (width * 0.75) - 100,
+				(int) (height * 0.75) - 10 - 30 + 30, 200, 20);
+		integerSetField.setMaxStringLength(16);
+		integerSetField.setText("");
 	}
 
-	@Override
+		@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		drawDefaultBackground();
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -116,6 +132,18 @@ public class ModsGui extends GuiScreen {
 
 				stringSetButton.drawButton(mc, mouseX, mouseY, partialTicks);
 				stringSetField.drawTextBox();
+			} else if (attributeList.selection instanceof ModAttributeInteger) {
+				typeColor = "\247b";
+				typeName = "INTEGER";
+				valueColor = "\247b";
+				valueString = Integer.toString(((ModAttributeInteger) attributeList.selection).value);
+
+				integerDecrementButton.drawButton(mc, mouseX, mouseY, partialTicks);
+				integerIncrementButton.drawButton(mc, mouseX, mouseY, partialTicks);
+				integerSetButton.drawButton(mc, mouseX, mouseY, partialTicks);
+				integerSetField.drawTextBox();
+				drawCenteredString(fontRenderer, Integer.toString(((ModAttributeInteger) attributeList.selection).value), (int) (width * 0.75),
+						(int) (height * 0.75) + 30 - (fontRenderer.FONT_HEIGHT / 2), 0x5555ff);
 			}
 
 			drawCenteredString(fontRenderer, "\2474\247l" + attributeList.selection.name, (int) (width * 0.75),
@@ -131,6 +159,7 @@ public class ModsGui extends GuiScreen {
 	public void updateScreen() {
 		searchField.updateCursorCounter();
 		stringSetField.updateCursorCounter();
+		integerSetField.updateCursorCounter();
 	}
 
 	@Override
@@ -157,12 +186,14 @@ public class ModsGui extends GuiScreen {
 			modList.updateEntries(searchField.getText());
 		if (attributeList.selection != null && attributeList.selection instanceof ModAttributeString)
 			stringSetField.textboxKeyTyped(typedChar, keyCode);
+		if (attributeList.selection != null && attributeList.selection instanceof ModAttributeInteger)
+			integerSetField.textboxKeyTyped(typedChar, keyCode);
 		if (keyCode == Keyboard.KEY_ESCAPE) {
 			Minecraft.getMinecraft().displayGuiScreen(null);
 		}
 	}
 
-	@Override
+		@Override
 	protected void mouseClicked(int x, int y, int button) throws IOException {
 		super.mouseClicked(x, y, button);
 		searchField.mouseClicked(x, y, button);
@@ -191,6 +222,25 @@ public class ModsGui extends GuiScreen {
 					ModManager.saveMods();
 					stringSetField.setText("");
 				}
+			} else if (attributeList.selection instanceof ModAttributeInteger) {
+				integerSetField.mouseClicked(x, y, button);
+				if (integerDecrementButton.mousePressed(mc, x, y)) {
+					((ModAttributeInteger)attributeList.selection).value -= 1;
+					ModManager.saveMods();
+				}
+				if (integerIncrementButton.mousePressed(mc, x, y)) {
+					((ModAttributeInteger)attributeList.selection).value += 1;
+					ModManager.saveMods();
+				}
+				if (integerSetButton.mousePressed(mc, x, y)) {
+					try {
+						((ModAttributeInteger) attributeList.selection).value = Integer.parseInt(integerSetField.getText());
+						ModManager.saveMods();
+						integerSetField.setText("");
+					} catch (NumberFormatException e) {
+						// Invalid number, ignore
+					}
+				}
 			}
 		}
 	}
@@ -208,6 +258,10 @@ public class ModsGui extends GuiScreen {
 				doubleIncrementButton.mouseReleased(x, y);
 			} else if (attributeList.selection instanceof ModAttributeString) {
 				stringSetButton.mouseReleased(x, y);
+			} else if (attributeList.selection instanceof ModAttributeInteger) {
+				integerDecrementButton.mouseReleased(x, y);
+				integerIncrementButton.mouseReleased(x, y);
+				integerSetButton.mouseReleased(x, y);
 			}
 		}
 	}
