@@ -15,6 +15,7 @@ import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -128,8 +129,9 @@ public class WorldDownloadMod extends Mod {
             
             File levelDatFile = new File(worldDir, "level.dat");
             try (FileOutputStream fos = new FileOutputStream(levelDatFile);
-                 GZIPOutputStream gzos = new GZIPOutputStream(fos)) {
-                levelDat.write(gzos);
+                 GZIPOutputStream gzos = new GZIPOutputStream(fos);
+                 DataOutputStream dos = new DataOutputStream(gzos)) {
+                levelDat.write(dos);
             }
         } catch (IOException e) {
             ChatUtil.error("Failed to create level.dat: " + e.getMessage());
@@ -157,16 +159,12 @@ public class WorldDownloadMod extends Mod {
     }
 
     @SubscribeEvent
-    public void onChunkData(ChunkDataEvent.Load event) {
+    public void onChunkData(ChunkDataEvent.Save event) {
         if (!isDownloading) return;
         if (event.getChunk() == null) return;
         
-        Chunk chunk = event.getChunk();
-        ChunkPos pos = chunk.getPos();
-        
-        NBTTagCompound compound = new NBTTagCompound();
-        chunk.writeToNBT(compound);
-        chunkData.put(pos, compound);
+        ChunkPos pos = event.getChunk().getPos();
+        chunkData.put(pos, event.getData());
     }
 
     @SubscribeEvent
@@ -199,17 +197,18 @@ public class WorldDownloadMod extends Mod {
     }
 
     private void saveChunk(ChunkPos pos, NBTTagCompound data) throws IOException {
-        int regionX = pos.chunkXPos >> 5;
-        int regionZ = pos.chunkZPos >> 5;
+        int regionX = pos.x >> 5;
+        int regionZ = pos.z >> 5;
         File regionFile = new File(regionDir, "r." + regionX + "." + regionZ + ".mca");
         
         // For simplicity, we'll use a basic approach - in reality you'd use Anvil format
         // This is a simplified version that saves chunk NBT directly
-        File chunkFile = new File(regionDir, "chunk_" + pos.chunkXPos + "_" + pos.chunkZPos + ".nbt");
+        File chunkFile = new File(regionDir, "chunk_" + pos.x + "_" + pos.z + ".nbt");
         
         try (FileOutputStream fos = new FileOutputStream(chunkFile);
-             GZIPOutputStream gzos = new GZIPOutputStream(fos)) {
-            data.write(gzos);
+             GZIPOutputStream gzos = new GZIPOutputStream(fos);
+             DataOutputStream dos = new DataOutputStream(gzos)) {
+            data.write(dos);
         }
     }
 
