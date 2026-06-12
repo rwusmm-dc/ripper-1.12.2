@@ -24,7 +24,6 @@ import com.rayferric.havook.feature.mod.misc.FastPlaceMod;
 import com.rayferric.havook.feature.mod.misc.PacketLimiterMod;
 import com.rayferric.havook.feature.mod.misc.FastMathMod;
 import com.rayferric.havook.feature.mod.misc.DerpMod;
-import com.rayferric.havook.feature.mod.misc.WorldDownloadMod;
 import com.rayferric.havook.feature.mod.combat.AutoTotemMod;
 import com.rayferric.havook.feature.mod.combat.KillAuraMod;
 import com.rayferric.havook.feature.mod.combat.TriggerBotMod;
@@ -93,7 +92,6 @@ public class ModManager {
 		MODS.add(new PacketLimiterMod());
 		MODS.add(new FastMathMod());
 		MODS.add(new DerpMod());
-		MODS.add(new WorldDownloadMod());
 		JsonArray modsArray = ConfigManager.getJsonObject().getAsJsonArray("mods");
 		if(modsArray == null) {
 			saveMods();
